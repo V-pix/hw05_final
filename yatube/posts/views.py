@@ -30,10 +30,8 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    following = False
-    if following:
-        following = request.user.is_authenticated and author.following.filter(
-            user=request.user).exists()
+    following = request.user.is_authenticated and author.following.filter(
+        user=request.user).exists()
     title = 'Профайл пользователя ' + username
     context = {
         'title': title,

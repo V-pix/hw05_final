@@ -171,7 +171,7 @@ class PostViewsTests(TestCase):
         form_field_text = response.context['form']
         self.assertIsInstance(form_field_text, PostForm)
 
-    def comment_on_post_detail(self):
+    def test_comment_on_post_detail(self):
         """Комментарий появляется на странице поста"""
         response = self.client.get(reverse(
             'posts:post_detail', kwargs={'post_id': self.post.id}))
