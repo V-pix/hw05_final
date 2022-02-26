@@ -1,5 +1,4 @@
 from django import forms
-from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 
 from .models import Comment, Post
@@ -23,12 +22,6 @@ class CommentForm(ModelForm):
     class Meta:
         model = Comment
         fields = ('text',)
-
-        def clean_text(self):
-            data = self.clean_data['text']
-            if data == '':
-                raise ValidationError
-            return data
 
         labels = {
             'text': 'Текст комментария',

@@ -171,7 +171,7 @@ class PostViewsTests(TestCase):
         form_field_text = response.context['form']
         self.assertIsInstance(form_field_text, PostForm)
 
-    def test_guest_client_no_comment(self):
+    def comment_on_post_detail(self):
         """Комментарий появляется на странице поста"""
         response = self.client.get(reverse(
             'posts:post_detail', kwargs={'post_id': self.post.id}))
@@ -192,7 +192,6 @@ class PostViewsTests(TestCase):
 
     def test_cache_index_page(self):
         """Тестирование использование кеширования"""
-        cache.clear()
         response = self.authorized_client.get(reverse('posts:index'))
         cache_check = response.content
         post = Post.objects.get(pk=1)
@@ -313,6 +312,8 @@ class FollowPagesTests(TestCase):
             user=self.subscriber,
             author=self.author,
         ).exists())
+
+    def test_unfollow_post_delete(self):
         self.authorized_client.get(
             reverse('posts:profile_unfollow', kwargs={'username': self.author})
         )

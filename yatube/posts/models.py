@@ -62,8 +62,6 @@ class Comment(models.Model):
         Post,
         on_delete=models.CASCADE,
         related_name='comments',
-        blank=True,
-        null=True,
         verbose_name='Пост',
         help_text='Пост, к которому комментарий'
     )
@@ -101,3 +99,10 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Автор'
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'], name='unique following'
+            )
+        ]

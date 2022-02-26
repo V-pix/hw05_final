@@ -31,9 +31,9 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     following = False
-    following = request.user.is_authenticated
     if following:
-        following = author.following.filter(user=request.user).exists()
+        following = request.user.is_authenticated and author.following.filter(
+            user=request.user).exists()
     title = 'Профайл пользователя ' + username
     context = {
         'title': title,
@@ -48,7 +48,7 @@ def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     author = post.author
     post_count_user = Post.objects.filter(author=author).count()
-    form = CommentForm(request.POST or None)
+    form = CommentForm()
     comments = post.comments.all()
     title = f'Пост {post_id}'
     context = {

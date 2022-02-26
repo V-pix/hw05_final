@@ -13,6 +13,10 @@ from ..models import Comment, Group, Post
 User = get_user_model()
 
 
+TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+
+
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class FormTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -28,12 +32,12 @@ class FormTests(TestCase):
             text='Тестовый текст',
             group=cls.group
         )
-        cls.comment = Comment.objects.create(
-            post=cls.post,
-            author=cls.user,
-            text='Текст комментария'
-        )
         cls.form = PostForm()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
         self.authorized_client = Client()
@@ -83,56 +87,6 @@ class FormTests(TestCase):
             ).exists()
         )
 
-    def test_commemt_add_authorized_user(self):
-        """Авторизованный пользователь может комментировать посты"""
-        comments_count = Comment.objects.count()
-        form_data = {
-            'text': 'Текст комментария',
-        }
-        response = self.authorized_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
-            data=form_data,
-            follow=True,
-        )
-        last_comment = Comment.objects.latest('created')
-        self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, reverse(
-            'posts:post_detail', kwargs={'post_id': self.post.id}))
-        self.assertEqual(Comment.objects.count(), comments_count + 1)
-        self.assertEqual(last_comment.text, form_data['text'])
-        self.assertEqual(last_comment.author, self.user)
-
-
-TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
-
-
-@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
-class PostFormTests(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.author = User.objects.create_user(username='auth')
-        cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='testslug',
-            description='Тестовое описание',
-        )
-        cls.post = Post.objects.create(
-            text='Тестовый пост',
-            author=cls.author,
-            group=cls.group,
-        )
-        cls.form = PostForm()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
-
-    def setUp(self):
-        self.authorized_author = Client()
-        self.authorized_author.force_login(self.author)
-
     def test_create_post(self):
         """Валидная форма создает запись поста
         с картинкой в базе данных."""
@@ -152,7 +106,7 @@ class PostFormTests(TestCase):
             'text': 'Тестовый текст',
             'image': uploaded,
         }
-        self.authorized_author.post(
+        self.authorized_client.post(
             reverse('posts:post_create'),
             data=form_data,
             follow=True
@@ -161,3 +115,43 @@ class PostFormTests(TestCase):
         self.assertTrue(Post.objects.filter(
                         text='Тестовый текст',
                         image='posts/small.gif').exists())
+
+
+class CommentTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='auth')
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text='Тестовый текст'
+        )
+        cls.comment = Comment.objects.create(
+            post=cls.post,
+            author=cls.user,
+            text='Текст комментария'
+        )
+        cls.form = PostForm()
+
+    def setUp(self):
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
+
+    def test_commemt_add_authorized_user(self):
+        """Авторизованный пользователь может комментировать посты"""
+        comments_count = Comment.objects.count()
+        form_data = {
+            'text': 'Текст комментария',
+        }
+        response = self.authorized_client.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
+            data=form_data,
+            follow=True,
+        )
+        last_comment = Comment.objects.latest('created')
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse(
+            'posts:post_detail', kwargs={'post_id': self.post.id}))
+        self.assertEqual(Comment.objects.count(), comments_count + 1)
+        self.assertEqual(last_comment.text, form_data['text'])
+        self.assertEqual(last_comment.author, self.user)
