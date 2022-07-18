@@ -1,3 +1,43 @@
-# hw05_final
+# YaTube - cоциальная сеть для публикации личных блогов
 
-[![CI](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml)
+## Оглавление
+- [Описание](#description)
+- [Запуск проекта](#launch)
+- [Требования](#requirements)
+
+<a id=description></a>
+## Описание
+Yatube - социальная сеть для публикации постов. Проект выполнен с использованием фреймворка [Django](https://www.djangoproject.com/). Позволяет пользователям регистрироваться, публиковать, редактировать, удалять посты, добавлять к постам картинки. Формируется лента с постами в хронологическом порядке публикации, где новые - выше. Пагинация настроена на вывод десяти постов на странице. Посты могут публиковаться в разных тематических группах или вне каких-либо групп. Группы может создавать только администратор сайта. Неавторизованные пользователи могут только просматривать посты других пользователей. Авторизованные пользователи, помимо описанного выше, могут подписываться на других пользователей и комментировать их записи. Пользовательский интерфейс реализован с помощью HTML, CSS. Проект покрыт тестами Unittest.
+
+---
+<a id=launch></a>
+## Запуск проекта:
+### Клонировать репозиторий и перейти в него в командной строке:
+```bash
+git clone git@github.com:V-pix/hw05_final.git
+cd hw05_final
+```
+### Cоздать и активировать виртуальное окружение:
+```bash
+python -m venv venv
+source venv/bin/activate        # для Linux
+source venv/Scripts/activate    # для Windows
+```
+### Установить зависимости из файла requirements.txt:
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+### Выполнить миграции:
+```bash
+python manage.py migrate
+```
+### Запустить проект:
+```bash
+python manage.py runserver
+```
+<a id=requirements></a>
+## Требования
+Python 3.6 +
+
+Работает под ОС Linux, Windows, macOS, BSD
