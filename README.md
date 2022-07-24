@@ -34,6 +34,10 @@ source venv/Scripts/activate    # для Windows
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
+### Перейти в директорию с manage.py:
+```bash
+cd yatube
+```
 ### Выполнить миграции:
 ```bash
 python manage.py migrate
